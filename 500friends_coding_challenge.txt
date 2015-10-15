@@ -1,0 +1,82 @@
+500friends LoyaltyPlus acts very similarly to an online banking system's ledger.
+
+We call credits, earn opportunities
+We call debits, redeem opportunities
+
+One key difference, is that there are many types of Earns and Burns.
+
+The goal of this exercise is to build a simple earn / burn ledger for frontier outdoor supply.
+
+The user stories for the system are:
+
+	As a customer, I would like to enroll in the frontier rewards program, so I may start earning rewards.
+
+	As a member, I would like they system to track my purchases at 1 point per dollar, so I may earn points.
+
+	As a member, I would like to be reward eligible at 100 points, so I may redeem 100 points for a $10 reward.
+
+	As an eligible member, I would like to redeem the points, so I use my reward.
+
+Business Rules of the program:
+
+	Member earns 1 point per $ spent
+	Member can redeem at 100 points for $10 reward
+	Frontier's system account_id in LoyaltyPlus is aabacd
+	Frontier's secret_key in LoyaltyPlus is 123
+
+
+Build a set of methods to:
+
+	Enroll a member by email address and account_id
+	Record purchase activity and add to the points ledger by email address and account_id
+	Check balance of a member by email address and account_id
+	Redeem a number points if eligible by email address and account_id
+	
+
+Bonus question:
+
+Security is important for our customers. We ask our customers to digitally sign our requests in a certain way.
+Add a signature parameter to each request called "sig"
+The classes should check the signature is correct before processing, or error.
+
+As a system, I need to ensure that the actions requested are secure, so that i can protect against gaming and fraud
+
+
+Here is the algorithm:
+
+	We assign the customer an account_id and a secret_key.  They keep the secret_key Private
+	We ask the customer to sign the request and append the signiature to the request as a "sig" param
+	
+	The part of the algorithm in LoyaltyPlus:
+	
+	How to Use Security: Calculating the sig Value
+		Every secure API call will require one additional parameter - signature or "sig". The sig parameter is a 32 character string used to authenticate the API request. A sig is computed as follows:
+
+		Step 1: Gather Parameters
+			Gather all parameters and values you want to pass in the API call (email, uuid, etc).
+			
+		Step 2: Sort Parameters
+			Sort the parameters in an alphabetical order.
+			
+		Step 3: Create a String
+			Create a string by concatenating all sorted parameters and values together.
+			Note: Do not URL-escape special characters (for example, %40 for @) at this stage
+			
+		Step 4: Prepend Secret Key
+			Prepend the string with your Secret Key.
+			
+		Step 5: compute MD5 hash:
+			Compute the MD5 hash value of the string. This is the value of the "sig" parameter of the api call.
+		
+	Example:
+		If you had the following params for your record call, and the secret_key 123
+		value: 100
+		email: test@test.com
+		account_id: aabacd
+		
+		the result would be
+			Sort the params:  account_id - email - value
+			concatenate the params and values:  account_idaabacdemailtest@test.comvalue100
+			prepend the secret_key: 123account_idaabacdemailtest@test.comvalue100
+			compute the md5 hash: c17c4744bced2ca181efdb4d7158f046
+		
