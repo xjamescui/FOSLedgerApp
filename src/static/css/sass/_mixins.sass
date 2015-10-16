@@ -1,0 +1,15 @@
+// Mixins
+
+@mixin style_button($main-color, $border-color, $text-color)
+  background: $main-color
+  border-radius: 3px
+  outline: none
+  border: none
+  border-bottom: 3px solid $border-color
+  color: $text-color
+  padding: 10px 20px
+  &:hover
+    background-color: rgba(red($main-color), green($main-color), blue($main-color), 0.8)
+    border-color: rgba(red($border-color), green($border-color), blue($border-color), 0.8)
+  &:active
+    background-color: $border-color

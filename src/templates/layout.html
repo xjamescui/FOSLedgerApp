@@ -1,0 +1,16 @@
+<html lang="en">
+    <head>
+        <title> {% block title %}{% endblock %}</title>
+        {% block css_includes %}
+            {% assets "layout_css" %}
+                <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
+            {% endassets %}
+        {% endblock %}
+    </head>
+    <body>
+        <div id="page-container">
+            {% block body %}{% endblock %}
+        </div>
+        {% block body_js %}{% endblock %}
+    </body>
+</html>

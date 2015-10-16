@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    FOS LoyaltyProgram
+{% endblock %}
+
+{% block body %}
+    <div id="profile-page-container">
+        <h1>Member Profile</h1>
+    </div>
+{% endblock %}
+
+{% block body_js %}
+    {% assets 'profile_js' %}
+    {% endassets %}
+{% endblock %}
