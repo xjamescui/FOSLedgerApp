@@ -1,9 +1,29 @@
 from flask import render_template, redirect, url_for, request
 from flask_wtf import Form
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 from wtforms import StringField
 from wtforms.validators import DataRequired, Email, length
-from src import app
 from src.models import User
+from src import app
+
+'''
+Setup
+'''
+
+# this class managers user login and session
+login_manager = LoginManager(app)
+# set the portal page as default login go-to page
+login_manager.login_view = '/portal'
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    """
+    User by the login manager
+    Load the user object from user id stored in session
+    """
+    return User.get_by_id(user_id)
+
 
 '''
 Routes
@@ -20,26 +40,30 @@ def portal():
         # whether enrolling or login in: we need to check if account with current info already exists
         user = User.query.filter(User.email == email, User.account_id == account_id).first()
 
-        # user has requested to login
         if request.form.get('submit') == 'Login':
             if user is None:
                 return render_template('portal.html', form=form, errors=["User does not exist. Please enroll first."])
-
-            # TODO authenticate user
-
-        # user has requested to enroll
+            login_user(user)
         elif request.form.get('submit') == 'Enroll':
             if user:
                 return render_template('portal.html', form=form, errors=["Membership exists, you may just Login"])
-
-            # TODO create user
+            User.create(email=email, account_id=account_id)
         return redirect(url_for('profile'))
+
     return render_template('portal.html', form=form, errors=form.get_error_msgs())
 
 
 @app.route('/profile', methods=['GET'])
+@login_required
 def profile():
     return render_template('profile.html')
+
+
+@app.route('/logout', methods=['GET'])
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('portal'))
 
 
 '''
