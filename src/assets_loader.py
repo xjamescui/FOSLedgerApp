@@ -7,6 +7,11 @@ assets = Environment()
 
 bundles = {
 
+    'layout_js': Bundle(
+        'lib/jquery/dist/jquery.min.js',
+        output='js/layout.js'
+    ),
+
     'layout_css': Bundle(
         Bundle('css/sass/layout.sass', filters='sass'),
         output='css/layout.css',
@@ -19,7 +24,12 @@ bundles = {
         filters='cssmin'
     ),
 
-    # 'profile_js': Bundle(),
+    'profile_js': Bundle(
+        'js/coffee/profile.coffee',
+        output='js/profile.js',
+        filters='coffeescript'
+    ),
+
     # 'profile_css': Bundle()
 }
 

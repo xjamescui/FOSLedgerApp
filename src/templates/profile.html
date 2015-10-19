@@ -6,11 +6,35 @@
 
 {% block body %}
     <div id="profile-page-container">
-        <h1>Member Profile</h1>
+        <a href="{{ url_for('logout') }}">Logout</a>
+
+        <div id="profile-info-container">
+            <p class="info-label">Welcome, </p> <span id="email-label"></span>
+
+            <p class="info-label">Points: </p><span id='points-label'></span>
+
+            <p class="info-label">Credits: </p><span id="credits-label"></span>
+        </div>
+        <div id="profile-ledgers-container">
+            <div id="new-purchase-form">
+                <p id="form-error"></p>
+                <label>Title</label><input id='new-purchase-title' type="text"/>
+                <label>Price</label><input id='new-purchase-price' type="number"/>
+                <label>Purchase date</label>
+                <input id="new-purchase-month" type="text"/>
+                <input id="new-purchase-day" type="text"/>
+                <input id="new-purchase-year" type="text"/>
+
+                <button id='new-purchase-add-button' type="button">Add</button>
+            </div>
+            <ul id="purchases-list">
+            </ul>
+        </div>
     </div>
 {% endblock %}
 
 {% block body_js %}
     {% assets 'profile_js' %}
+        <script type="text/javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
 {% endblock %}

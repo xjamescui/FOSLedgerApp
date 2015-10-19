@@ -1,6 +1,9 @@
 <html lang="en">
     <head>
         <title> {% block title %}{% endblock %}</title>
+        {% assets "layout_js" %}
+            <script type="text/javascript" src="{{ ASSET_URL }}"></script>
+        {% endassets %}
         {% block css_includes %}
             {% assets "layout_css" %}
                 <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}" />
@@ -11,6 +14,7 @@
         <div id="page-container">
             {% block body %}{% endblock %}
         </div>
-        {% block body_js %}{% endblock %}
+        {% block body_js %}
+        {% endblock %}
     </body>
 </html>
