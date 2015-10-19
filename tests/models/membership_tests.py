@@ -10,7 +10,7 @@ class MembershipModelTestCase(BaseTestCase):
             Create a user and a membership, associate membership to user
         """
         new_user = User.create(email=self.email, account_id=self.account_id)
-        new_membership = Membership.create(user_id=new_user.id)
+        new_membership = Membership.query.filter(Membership.user_id == new_user.id).first()
         return [new_user, new_membership]
 
     def test_create_user_with_membership(self):
