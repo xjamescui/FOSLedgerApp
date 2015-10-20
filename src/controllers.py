@@ -41,13 +41,15 @@ def portal():
         user = User.query.filter(User.email == email, User.account_id == account_id).first()
 
         if request.form.get('submit') == 'Login':
-            if user is None:
+            if not user:
                 return render_template('portal.html', form=form, errors=["User does not exist. Please enroll first."])
-            login_user(user)
         elif request.form.get('submit') == 'Enroll':
             if user:
                 return render_template('portal.html', form=form, errors=["Membership exists, you may just Login"])
-            User.create(email=email, account_id=account_id)
+            user = User.create(email=email, account_id=account_id)
+
+        # whether login or enroll, login the user eventually
+        login_user(user)
         return redirect(url_for('profile'))
 
     return render_template('portal.html', form=form, errors=form.get_error_msgs())
