@@ -100,7 +100,7 @@ do ->
 
   updatePtsEstimate = (pts)->
     pts = if isNaN(pts) or pts < 0 then 0 else pts
-    convertCreditsPtsEstimate.text(' = ' + pts + 'pts')
+    convertCreditsPtsEstimate.text(' = ' + formatPointsString(pts))
 
   # Toggle error display in different forms.
   # Just specify the error and the error prompt element to display it in
@@ -111,7 +111,7 @@ do ->
     else
       errorContainer.hide()
 
-  setDefaultPurchaseDate = ()->
+  setDefaultPurchaseDate = ->
     now = new Date()
     dayTextField.val now.getDate()
     monthTextField.val now.getMonth() + 1
@@ -128,7 +128,7 @@ do ->
     return false if !(date.getFullYear() == parseInt(year) and date.getMonth() + 1 == parseInt(month) and date.getDate() == parseInt(day))
     true
 
-  validateNewPurchaseInfo = ()->
+  validateNewPurchaseInfo = ->
     if !titleTextField.val() or titleTextField.val() == ''
       updateErrorMsg('Please write a description about the purchase', newPurchaseFormErrorPrompt)
       return false
@@ -200,7 +200,7 @@ do ->
       )
     return
 
-  getPointsEstimate = ()->
+  getPointsEstimate = ->
     if validateCreditConversionInfo()
       $.ajax(
         url: '/api/credit_conversion'
@@ -226,13 +226,14 @@ do ->
       updateErrorMsg('', convertCreditsFormErrorPrompt)
       convertCreditsPtsEstimate.hide()
 
+    convertCreditsEstimateButton.bind('click', getPointsEstimate)
+    convertCreditsButton.bind('click', createNewCreditConversion)
+
     if !rewardsEligible
       convertCreditsForm.hide()
     else
       convertCreditsForm.show()
       convertCreditsTextField.val(rewardsMaxEligible) # default to max credits eligible
-      convertCreditsEstimateButton.bind('click', getPointsEstimate)
-      convertCreditsButton.bind('click', createNewCreditConversion)
     return
 
   initNewPurchaseForm = ->
