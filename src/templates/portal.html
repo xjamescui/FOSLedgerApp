@@ -17,7 +17,7 @@
         <form id='enroll-login-form' method="POST" action="{{ url_for('portal') }}">
             {{ form.csrf_token }}
             {% if errors %}
-                <div class="error-msg">
+                <div class="error-prompt">
                     {% for error in errors %}
                         <p>{{ error }}</p>
                     {% endfor %}
@@ -27,8 +27,8 @@
             <div class="form-field">{{ form.email.label }}{{ form.email() }}</div>
             <div class="form-field">{{ form.account_id.label }}{{ form.account_id() }}</div>
             <div class="form-controls">
-                <input class='enroll-button' type="submit" name='submit' value="Enroll"/>
-                <input class='login-button' type="submit" name='submit' value="Login"/>
+                <input id='enroll-button' type="submit" name='submit' value="Enroll"/>
+                <input id='login-button' type="submit" name='submit' value="Login"/>
             </div>
         </form>
     </div>

@@ -2,31 +2,41 @@ do ->
   'use strict'
 
   # membership profile
-  emailLabel = $('#top-nav-bar #email-label')
-  accountIdLabel = $('#profile-info-container #account-value')
-  creditLabel = $('#profile-info-container #credits-value')
-  pointsLabel = $('#profile-info-container #points-value')
+  emailLabel       = $('#top-nav-bar #email-label')
+  accountIdLabel   = $('#profile-info-container #account-value')
+  creditLabel      = $('#profile-info-container #credits-value')
+  pointsLabel      = $('#profile-info-container #points-value')
+  eligibilityLabel = $('#profile-info-container #eligibility-value')
+
+  # credit conversion form
+  convertCreditsForm            = $('#profile-info-container #convert-form')
+  convertCreditsTextField       = convertCreditsForm.find('#points-to-convert')
+  convertCreditsPtsEstimate     = convertCreditsForm.find('#pts-estimate')
+  convertCreditsFormErrorPrompt = convertCreditsForm.find('#convert-form-error')
+  convertCreditsButton          = convertCreditsForm.find('#convert-submit-button')
+  convertCreditsEstimateButton  = convertCreditsForm.find('#pts-estimate-button')
+
+  # Form: Add Purchase
+  newPurchaseForm            = $('#new-purchase-form')
+  priceTextField             = $('#new-purchase-price')
+  titleTextField             = $('#new-purchase-title')
+  dayTextField               = $('#new-purchase-day')
+  monthTextField             = $('#new-purchase-month')
+  yearTextField              = $('#new-purchase-year')
+  newPurchaseAddButton       = $('#new-purchase-add-button')
+  newPurchaseFormErrorPrompt = $('#new-purchase-form-error')
 
   # list of purchases/activities
   purchasesList = $('ul#purchases-list')
 
-  # Form: Add Purchase
-  allFields = $('#new-purchase-form input')
-  priceTextField = $('#new-purchase-price')
-  titleTextField = $('#new-purchase-title')
-  dayTextField = $('#new-purchase-day')
-  monthTextField = $('#new-purchase-month')
-  yearTextField = $('#new-purchase-year')
-  newPurchaseAddButton = $('#new-purchase-add-button')
-  formErrorPrompt = $('#form-error')
-
   # data model
-  secret_key = null
-  accountId = ''
-  email = ''
-  points = 0
-  credits = 0
-  formError = ''
+  secret_key          = null
+  accountId           = ''
+  email               = ''
+  points              = 0
+  credits             = 0
+  rewardsEligible     = false
+  rewardsMaxEligible  = 0
 
   numToCurrency = (num)->
     '$' + num.toFixed(2)
@@ -37,12 +47,12 @@ do ->
   formatPointsString = (pts)->
     pts + ' pts'
 
-  updateAccountId = (id) ->
+  updateAccountId = (id)->
     accountId = id
     accountIdLabel.text(accountId)
     return
 
-  updateEmail = (newEmail) ->
+  updateEmail = (newEmail)->
     email = newEmail
     emailLabel.text(email)
     return
@@ -57,15 +67,27 @@ do ->
     pointsLabel.text(points)
     return
 
-  updateSecretKey = (newKey) ->
+  updateSecretKey = (newKey)->
     secret_key = newKey
     return
 
-  updatePurchasesList = (purchases) ->
+  getEligibilityStatusLabel = (eligible)->
+    if eligible then 'Eligible' else 'Not Eligible'
+
+  updateRewardsEligibility = (eligible, maxAllowed)->
+    rewardsEligible    = eligible
+    rewardsMaxEligible = maxAllowed
+
+    convertCreditsTextField.val(rewardsMaxEligible)
+    eligibilityLabel.text(getEligibilityStatusLabel(eligible))
+    convertCreditsForm.toggle(rewardsEligible)
+    return
+
+  updatePurchasesList = (purchases)->
     purchasesList.empty()
 
     # re-populate with new data
-    purchases.map (p) ->
+    purchases.map (p)->
       purchasesList.prepend($('<li>' +
           '<div class="item-description">' +
           '<span class="item-title">' + p['title'] + '</span>' +
@@ -75,6 +97,19 @@ do ->
           '<div class="item-points">' + formatPointsString(p['points']) + '</div>' +
           '</li>'))
     return
+
+  updatePtsEstimate = (pts)->
+    pts = if isNaN(pts) or pts < 0 then 0 else pts
+    convertCreditsPtsEstimate.text(' = ' + pts + 'pts')
+
+  # Toggle error display in different forms.
+  # Just specify the error and the error prompt element to display it in
+  updateErrorMsg = (msg, errorContainer)->
+    if msg and msg != ''
+      errorContainer.text(msg)
+      errorContainer.show()
+    else
+      errorContainer.hide()
 
   setDefaultPurchaseDate = ()->
     now = new Date()
@@ -95,27 +130,31 @@ do ->
 
   validateNewPurchaseInfo = ()->
     if !titleTextField.val() or titleTextField.val() == ''
-      formError = 'Please write a description about the purchase'
+      updateErrorMsg('Please write a description about the purchase', newPurchaseFormErrorPrompt)
       return false
     if !priceTextField.val() or isNaN(priceTextField.val()) or priceTextField.val() < 0
-      formError = 'Please enter a price'
+      updateErrorMsg('Please enter a valid price', newPurchaseFormErrorPrompt)
       return false
     if !isValidPurchaseDate(dayTextField.val(), monthTextField.val(), yearTextField.val())
-      formError = 'Invalid date'
+      updateErrorMsg('Invalid date', newPurchaseFormErrorPrompt)
       return false
     true
 
-  updateErrorMsg = (msg)->
-    if msg and msg != ''
-      formErrorPrompt.text(msg)
-      formErrorPrompt.show()
-    else
-      formErrorPrompt.hide()
 
-  createNewPurchase = (list) ->
-    if !validateNewPurchaseInfo()
-      updateErrorMsg(formError)
-    else
+  validateCreditConversionInfo = ->
+    inputCredits = convertCreditsTextField.val()
+    if !inputCredits or isNaN(inputCredits) or inputCredits < 0
+      updateErrorMsg('Invalid value', convertCreditsFormErrorPrompt)
+      return false
+    if inputCredits % 1 != 0
+      # not an integer/whole number
+      updateErrorMsg('You can only convert whole numbers', convertCreditsFormErrorPrompt)
+      return false
+    true
+
+
+  createNewPurchase = ->
+    if validateNewPurchaseInfo()
       params =
         title: titleTextField.val()
         price: priceTextField.val()
@@ -129,28 +168,86 @@ do ->
         type: 'POST',
         data: params
         success: (result) ->
-          # add new data to UI
-          updateCredits(result['credits'])
+          if result['backend_err_msg']
+            updateErrorMsg(result['backend_err_msg'], newPurchaseFormErrorPrompt)
           updatePoints(result['points'])
+          updateCredits(result['credits'])
+          updateRewardsEligibility(result['eligible'], result['max_eligible'])
           updatePurchasesList(result['purchases'])
           return
         error: (err)->
-          console.log err
+          updateErrorMsg(err.responseText, newPurchaseFormErrorPrompt)
           return
       )
     return
 
-  initNewPurchaseForm = ()->
-    formErrorPrompt.hide()
-    allFields.click () ->
-      updateErrorMsg('')
-    newPurchaseAddButton.bind('click', createNewPurchase.bind(this, purchasesList))
+  createNewCreditConversion = ->
+    if validateCreditConversionInfo()
+      $.ajax(
+        url: '/api/credit_conversion'
+        type: 'PUT'
+        data: {new_credits: convertCreditsTextField.val()}
+        success: (result)->
+          if result['backend_err_msg']
+            updateErrorMsg(result['backend_err_msg'], convertCreditsFormErrorPrompt)
+          updatePoints(result['points'])
+          updateCredits(result['credits'])
+          updateRewardsEligibility(result['eligible'], result['max_eligible'])
+          return
+        error: (err)->
+          updateErrorMsg(err.responseText, convertCreditsFormErrorPrompt)
+          return
+      )
+    return
+
+  getPointsEstimate = ()->
+    if validateCreditConversionInfo()
+      $.ajax(
+        url: '/api/credit_conversion'
+        type: 'GET'
+        data: {credits_quote: convertCreditsTextField.val()}
+        success: (result)->
+          updatePtsEstimate(result['points'])
+          convertCreditsPtsEstimate.show()
+          return
+        error: (err)->
+          updateErrorMsg(err.responseText, convertCreditsFormErrorPrompt)
+          return
+      )
+    return
+
+  # Initializes the convert points form when user is eligible
+  initConvertCreditsForm = ->
+    convertCreditsFormErrorPrompt.hide()
+    convertCreditsPtsEstimate.hide()
+
+    convertCreditsTextField.click ->
+      # toggle error msg when textfield in focus
+      updateErrorMsg('', convertCreditsFormErrorPrompt)
+      convertCreditsPtsEstimate.hide()
+
+    if !rewardsEligible
+      convertCreditsForm.hide()
+    else
+      convertCreditsForm.show()
+      convertCreditsTextField.val(rewardsMaxEligible) # default to max credits eligible
+      convertCreditsEstimateButton.bind('click', getPointsEstimate)
+      convertCreditsButton.bind('click', createNewCreditConversion)
+    return
+
+  initNewPurchaseForm = ->
+    newPurchaseFormErrorPrompt.hide()
+
+    # setup error msg toggling
+    newPurchaseForm.children('input').click ->
+      updateErrorMsg('', newPurchaseFormErrorPrompt)
+
+    newPurchaseAddButton.bind('click', createNewPurchase)
     setDefaultPurchaseDate()
     return
 
   init = ->
     initNewPurchaseForm()
-
     # GET secret key and other user info
     $.ajax(
       url: '/api/current_user_details'
@@ -162,6 +259,8 @@ do ->
         updatePoints(result['points'])
         updateSecretKey(result['secret_key'])
         updatePurchasesList(result['purchases'])
+        updateRewardsEligibility(result['eligible'], result['max_eligible'])
+        initConvertCreditsForm()
         return
       error: (err) ->
         console.log err

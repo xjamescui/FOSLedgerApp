@@ -38,10 +38,34 @@ class Membership(db.Model, ModelMixins):
     credits = db.Column(db.Integer, default=0)
     purchases = db.relationship('Purchase', backref='membership', cascade='all, delete-orphan')
 
+    _points_per_credit = 10  # 100 pts for $10 ==> 10 pts for $1
+
     def __init__(self, **kwargs):
         self.user_id = kwargs.get('user_id')
         self.points = kwargs.get('points')
         self.credits = kwargs.get('credits')
+
+    def is_reward_eligible(self):
+        return self.points >= 100
+
+    def max_reward_eligible(self):
+        if self.is_reward_eligible():
+            return self.credits_attainable_with(self.points)
+        return 0
+
+    def points_needed_for(self, credits_desired):
+        return credits_desired * self._points_per_credit
+
+    def credits_attainable_with(self, points):
+        return points / self._points_per_credit
+
+    def convert_points_for(self, credits_desired):
+        if self.is_reward_eligible():
+            pts = self.points_needed_for(credits_desired)
+            if self.points >= pts:
+                self.update(points=self.points - pts, credits=self.credits + credits_desired)
+                return True
+        return False
 
     @classmethod
     def price_to_points(cls, price):
@@ -71,5 +95,3 @@ class Purchase(db.Model, ModelMixins):
         self.points = Membership.price_to_points(self.price)
         self.date = kwargs.get('date')
         self.membership_id = kwargs.get('membership_id')
-
-

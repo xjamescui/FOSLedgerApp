@@ -24,8 +24,6 @@ body
   margin: 0 auto
   input
     @include style_textfield($complementary-color)
-  .error-msg
-    @include error_prompt()
   .form-field
     margin: 10px 0
     label
@@ -36,7 +34,7 @@ body
     margin-top: 40px
     input[type='submit']
       margin: 0 20px
-    .login-button
+    #login-button
       @include style_button($green-color, $dark-green-color, white)
-    .enroll-button
+    #enroll-button
       @include style-button($complementary-color, $dark-complementary-color, white)

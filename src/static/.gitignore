@@ -1,2 +1,4 @@
 lib/
 .webassets-cache/
+css/*.css
+js/*.js

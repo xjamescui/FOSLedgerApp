@@ -19,21 +19,33 @@
     </div>
     <div class="container">
         <h1 class="profile-info-title">Membership Profile</h1>
-        <div id="profile-info-container" >
+
+        <div id="profile-info-container">
             <div class="info-field lead-field"><label>Account ID: </label><span id='account-value'></span></div>
+            <div class="info-field"><label>Reward status:</label><span id="eligibility-value"></span></div>
             <div class="info-field"><label>Points: </label><span id='points-value'></span></div>
-            <div class="info-field"><label>Credits: </label><span id="credits-value"></span></div>
+            <div class="info-field"><label>Credits($): </label><span id="credits-value"></span></div>
+            <div id="convert-form">
+                <div id="convert-form-title">Add Credits(10pts/$1)</div>
+                <div id="convert-form-error" class="error-prompt"></div>
+                <div id="conversion-input">
+                    <input id='points-to-convert' type="number" maxLength="4"/><span id="pts-estimate"></span>
+                </div>
+                <button id="pts-estimate-button" type="button">Estimate</button>
+                <button id="convert-submit-button" type="button">Convert</button>
+            </div>
         </div>
-        <div id="profile-ledgers-container" >
+        <div id="profile-ledgers-container">
             <h3>Purchases</h3>
+
             <div id="new-purchase-form">
-                <div id="form-error"></div>
-                <label>Description</label><input id='new-purchase-title' type="text"/>
-                <label>Price ($)</label><input id='new-purchase-price' type="number"/>
+                <div id="new-purchase-form-error" class="error-prompt"></div>
+                <label>Description</label><input id='new-purchase-title' class="textfield" type="text"/>
+                <label>Price ($)</label><input id='new-purchase-price' class="textfield" type="number"/>
                 <label>Purchase date</label>
-                <input id="new-purchase-month" type="text" placeholder="mm" maxlength="2"/>
-                <input id="new-purchase-day" type="text" placeholder="dd" maxlength="2"/>
-                <input id="new-purchase-year" type="text" placeholder="yyyy" maxlength="4"/>
+                <input id="new-purchase-month" class="textfield" type="text" placeholder="mm" maxlength="2"/>
+                <input id="new-purchase-day" class="textfield" type="text" placeholder="dd" maxlength="2"/>
+                <input id="new-purchase-year" class="textfield" type="text" placeholder="yyyy" maxlength="4"/>
                 <button id='new-purchase-add-button' type="button">Add</button>
             </div>
             <ul id="purchases-list">

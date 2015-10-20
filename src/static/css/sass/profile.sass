@@ -39,6 +39,35 @@
     color: $complementary-color
   #credits-value
     color: $dark-primary-color
+  #convert-form
+    margin-top: 20px
+    text-align: center
+    border-top: 1px dashed $primary-color
+    padding-top: 20px
+    #convert-form-title
+      font-size: 16px
+      color: $dark-primary-color
+    #convert-form-error
+      margin-top: 10px
+    #conversion-input
+      color: $complementary-color
+      margin: 10px auto
+      #points-to-convert
+        @include style_textfield($primary-color)
+        text-align: center
+        color: $dark-primary-color
+        font-size: 20px
+        width: 100px
+        display: inline-block
+        margin-right: 10px
+      span
+        margin-right: 10px
+      #pts-estimate
+        width: 200px
+    #pts-estimate-button
+      @include style_button($complementary-color, $dark-complementary-color, white)
+    #convert-submit-button
+      @include style_button($primary-color, $dark-primary-color, white)
 
 #profile-ledgers-container
   margin: 20px 0
@@ -48,10 +77,6 @@
     text-align: center
     padding-left: 50px
     padding-right: 50px
-    #form-error
-      @include error_prompt()
-    input
-      @include style_textfield($complementary-color)
     label
       padding: 5px
       width: 50px

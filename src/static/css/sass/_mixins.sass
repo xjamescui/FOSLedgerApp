@@ -18,7 +18,7 @@ $light-complementary-color: #FFCCBC
 
 @mixin style_button($main-color, $border-color, $text-color)
   background: $main-color
-  border-radius: 3px
+  border-radius: 5px
   outline: none
   border: none
   border-bottom: 3px solid $border-color
@@ -52,3 +52,11 @@ $light-complementary-color: #FFCCBC
   border: 2px solid $border-color
   border-bottom: 5px solid $border-color
   padding: 20px
+
+
+
+.textfield
+  @include style_textfield($complementary-color)
+
+.error-prompt
+  @include error_prompt()
