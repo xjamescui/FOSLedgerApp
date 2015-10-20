@@ -4,27 +4,36 @@
     FOS LoyaltyProgram
 {% endblock %}
 
+{% block css_includes %}
+    {{ super() }}
+    {% assets "profile_css" %}
+        <link rel="stylesheet" type="text/css" href="{{ ASSET_URL }}"/>
+    {% endassets %}
+{% endblock %}
+
 {% block body %}
-    <div id="profile-page-container">
-        <a href="{{ url_for('logout') }}">Logout</a>
-
-        <div id="profile-info-container">
-            <p class="info-label">Welcome, </p> <span id="email-label"></span>
-
-            <p class="info-label">Points: </p><span id='points-label'></span>
-
-            <p class="info-label">Credits: </p><span id="credits-label"></span>
+    <div id="top-nav-bar">
+        <h1>FOS LoyaltyPlus</h1>
+        <span class="info-label">Welcome, </span><span id="email-label"></span>
+        <a class='logout-button' href="{{ url_for('logout') }}">Logout</a>
+    </div>
+    <div class="container">
+        <h1 class="profile-info-title">Membership Profile</h1>
+        <div id="profile-info-container" >
+            <div class="info-field lead-field"><label>Account ID: </label><span id='account-value'></span></div>
+            <div class="info-field"><label>Points: </label><span id='points-value'></span></div>
+            <div class="info-field"><label>Credits: </label><span id="credits-value"></span></div>
         </div>
-        <div id="profile-ledgers-container">
+        <div id="profile-ledgers-container" >
+            <h3>Purchases</h3>
             <div id="new-purchase-form">
-                <p id="form-error"></p>
-                <label>Title</label><input id='new-purchase-title' type="text"/>
-                <label>Price</label><input id='new-purchase-price' type="number"/>
+                <div id="form-error"></div>
+                <label>Description</label><input id='new-purchase-title' type="text"/>
+                <label>Price ($)</label><input id='new-purchase-price' type="number"/>
                 <label>Purchase date</label>
-                <input id="new-purchase-month" type="text"/>
-                <input id="new-purchase-day" type="text"/>
-                <input id="new-purchase-year" type="text"/>
-
+                <input id="new-purchase-month" type="text" placeholder="mm" maxlength="2"/>
+                <input id="new-purchase-day" type="text" placeholder="dd" maxlength="2"/>
+                <input id="new-purchase-year" type="text" placeholder="yyyy" maxlength="4"/>
                 <button id='new-purchase-add-button' type="button">Add</button>
             </div>
             <ul id="purchases-list">

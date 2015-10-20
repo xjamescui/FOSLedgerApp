@@ -1,0 +1,91 @@
+@import 'mixins'
+
+#top-nav-bar
+  text-align: right
+  background-color: $primary-color
+  padding: 20px
+  color: white
+  margin-bottom: 20px
+  border-bottom: 5px solid $light-primary-color
+  h1
+    position: absolute
+    left: 20px
+    top: 0
+    margin: 0
+  .logout-button
+    color: white
+    margin: 0 20px
+
+.profile-info-title
+  text-align: center
+  color: $primary-color
+
+#profile-info-container
+  @include style_form_frame($primary-color)
+  padding: 10px
+  font-size: 25px
+  width: 400px
+  margin: 0 auto
+  .info-field
+    label
+      color: gray
+      display: inline-block
+      width: 200px
+    &.lead-field
+      font-weight: bold
+    span
+      display: inline-block
+  #points-value
+    color: $complementary-color
+  #credits-value
+    color: $dark-primary-color
+
+#profile-ledgers-container
+  margin: 20px 0
+  padding: 10px
+  #new-purchase-form
+    @include style_form_frame(lightgray)
+    text-align: center
+    padding-left: 50px
+    padding-right: 50px
+    #form-error
+      @include error_prompt()
+    input
+      @include style_textfield($complementary-color)
+    label
+      padding: 5px
+      width: 50px
+    #new-purchase-month, #new-purchase-day, #new-purchase-year
+      text-align: center
+    #new-purchase-month, #new-purchase-day
+      width: 30px
+    #new-purchase-year
+      width: 60px
+    #new-purchase-add-button
+      margin-left: 10px
+      @include style_button($green-color, $dark-green-color, white)
+  #purchases-list
+    color: $secondary-text-color
+    padding: 0
+    li
+      list-style: none
+      text-align: left
+      border-top: 1px solid $divider-color
+    .item-description, .item-price, .item-points
+      text-align: left
+      display: inline-block
+      padding: 10px
+    .item-description
+      width: 600px
+      .item-title, .item-date
+        display: block
+      .item-title
+        color: $primary-text-color
+        font-size: 20px
+    .item-price, .item-points
+      font-size: 30px
+      vertical-align: top
+      width: 150px
+    .item-points
+      color: $complementary-color
+

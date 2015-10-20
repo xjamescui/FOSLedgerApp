@@ -30,7 +30,11 @@ bundles = {
         filters='coffeescript'
     ),
 
-    # 'profile_css': Bundle()
+    'profile_css': Bundle(
+        Bundle('css/sass/profile.sass', filters='sass'),
+        output='css/profile.css',
+        filters='cssmin'
+    )
 }
 
 assets.register(bundles)

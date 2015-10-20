@@ -12,9 +12,8 @@
 {% endblock %}
 
 {% block body %}
-    <h1 id="site-title">Frontier Outdoor Supply</h1>
-    <div class="form-container">
-        <p>Hello! Welcome to the FOS LoyaltyPlus members page.</p>
+    <div id="site-title"><h2>Frontier Outdoor Supply </h2><h1>LoyaltyPlus</h1></div>
+    <div class="container">
         <form id='enroll-login-form' method="POST" action="{{ url_for('portal') }}">
             {{ form.csrf_token }}
             {% if errors %}

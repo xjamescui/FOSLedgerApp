@@ -1,4 +1,20 @@
-// Mixins
+// Theme Mixins
+
+$primary-color: #2196F3
+$dark-primary-color: #1976D2
+$light-primary-color: #BBDEFB
+$lighter-primary-color: #B2EBF2
+$primary-text-color: #212121
+$secondary-text-color: #727272
+$divider-color: #B6B6B6
+
+$green-color: #2ecc71
+$dark-green-color: #29b664
+
+$complementary-color: #FF5722
+$dark-complementary-color: #E64A19
+$light-complementary-color: #FFCCBC
+
 
 @mixin style_button($main-color, $border-color, $text-color)
   background: $main-color
@@ -13,3 +29,26 @@
     border-color: rgba(red($border-color), green($border-color), blue($border-color), 0.8)
   &:active
     background-color: $border-color
+
+@mixin style_textfield($focus-color)
+  outline: none
+  border-radius: 5px
+  border: 1px solid lightgray
+  padding: 5px
+  &:focus
+    border-color: $focus-color
+
+@mixin error_prompt()
+  color: darkred
+  padding: 10px
+  text-align: center
+  background-color: lightpink
+  border-radius: 5px
+  font-size: 13px
+  margin-bottom: 10px
+
+@mixin style_form_frame($border-color)
+  border-radius: 10px
+  border: 2px solid $border-color
+  border-bottom: 5px solid $border-color
+  padding: 20px

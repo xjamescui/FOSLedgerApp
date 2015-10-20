@@ -1,22 +1,31 @@
-@import mixins
+@import 'mixins'
 
-$login-button-color: #2ecc71
-$login-button-dark-color: #29b664
 $enroll-button-color: #e67e22
 $enroll-button-dark-color: #d35400
 
+body
+  background-color: $primary-color
+
+#page-container
+  margin-top: 50px
+
+#site-title
+  color: white
+  text-align: center
+  h1, h2
+    display: inline
+
 #enroll-login-form
-  border: 1px dashed black
+  @include style_form_frame($dark-primary-color)
+  background-color: white
   width: 500px
   padding: 50px
   text-align: center
   margin: 0 auto
+  input
+    @include style_textfield($complementary-color)
   .error-msg
-    color: red
-    border: 1px solid red
-    background-color: peachpuff
-    border-radius: 3px
-    font-size: 13px
+    @include error_prompt()
   .form-field
     margin: 10px 0
     label
@@ -28,6 +37,6 @@ $enroll-button-dark-color: #d35400
     input[type='submit']
       margin: 0 20px
     .login-button
-      @include style_button($login-button-color, $login-button-dark-color, white)
+      @include style_button($green-color, $dark-green-color, white)
     .enroll-button
-      @include style-button($enroll-button-color, $enroll-button-dark-color, white)
+      @include style-button($complementary-color, $dark-complementary-color, white)
