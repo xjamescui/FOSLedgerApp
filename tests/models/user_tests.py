@@ -3,16 +3,17 @@ from src.models import User
 
 
 class UserModelTestCase(BaseTestCase):
-    email, account_id = 'james@test.com', 'abc123'
+    account_id, secret_key = 'james@test.com', 'abc123'
 
     def _create_user(self):
-        return User.create(email=self.email, account_id=self.account_id)
+        return User.create(account_id=self.account_id, secret_key=self.secret_key)
 
     def test_create_user(self):
         u = self._create_user()
         self.assertIsNotNone(u)
         self.assertEqual(u.id, 1)
-        self.assertIsNotNone(u.membership, msg="should create membership along with new user")
+        self.assertEqual(u.members, [])
+        self.assertEqual(u.points, 0)
 
     def test_update_user(self):
         u = self._create_user()

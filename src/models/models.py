@@ -7,41 +7,45 @@ from flask_login import UserMixin as UserStatusMixin
 
 class User(db.Model, ModelMixins, UserStatusMixin):
     """
-    A user owns a membership
-    A user is created together with a membership
-    A user remains even if his or her membership is deleted
+    A user (e.g. Frontier) is a customer of LoyaltyPlus
+    A user has many members
+    A user remains even if all of its members are gone
     """
     __tablename__ = 'user'
 
     account_id = db.Column(db.String(255), unique=True, nullable=False)
     secret_key = db.Column(db.String(32))
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    membership = db.relationship('Membership', uselist=False, backref='user', cascade='all, delete-orphan')
+    members = db.relationship('Member', backref='user', cascade='all, delete-orphan')
 
     def __init__(self, **kwargs):
-        self.email = kwargs.get('email')
         self.account_id = kwargs.get('account_id')
         self.secret_key = kwargs.get('secret_key')
-        self.membership = Membership(user_id=self.id)
+
+    @property
+    def points(self):
+        return sum([m.points for m in self.members]) if self.members else 0
 
 
-class Membership(db.Model, ModelMixins):
+class Member(db.Model, ModelMixins):
     """
-    A membership belongs to a user
-    A membership is associated with many purchases
-    A membership is deleted along with its owner(user)
+    A member is a customer of user
+    A member belongs to a customer of LoyaltyPlus
+    A member has many purchases
+    A member is deleted along with the customer
     """
-    __tablename__ = 'membership'
+    __tablename__ = 'member'
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    account_id = db.Column(db.Integer, db.ForeignKey('user.account_id'), nullable=False)
     points = db.Column(db.Integer, default=0)
     credits = db.Column(db.Integer, default=0)
-    purchases = db.relationship('Purchase', backref='membership', cascade='all, delete-orphan')
+    purchases = db.relationship('Purchase', backref='member', cascade='all, delete-orphan')
 
     _points_per_credit = 10  # 100 pts for $10 ==> 10 pts for $1
 
     def __init__(self, **kwargs):
-        self.user_id = kwargs.get('user_id')
+        self.email = kwargs.get('email')
+        self.account_id = kwargs.get('account_id')
         self.points = kwargs.get('points')
         self.credits = kwargs.get('credits')
 
@@ -78,8 +82,8 @@ class Membership(db.Model, ModelMixins):
 
 class Purchase(db.Model, ModelMixins):
     """
-    A purchase is associated with a membership
-    A purchase is deleted when its associated membership is deleted
+    A purchase belongs to a member
+    A purchase is deleted when its member is deleted
     """
     __tablename__ = 'purchase'
 
@@ -87,11 +91,11 @@ class Purchase(db.Model, ModelMixins):
     price = db.Column(db.Float, nullable=False)
     points = db.Column(db.Integer, default=0)
     date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
-    membership_id = db.Column(db.Integer, db.ForeignKey('membership.id'))
+    member_id = db.Column(db.Integer, db.ForeignKey('member.id'))
 
     def __init__(self, **kwargs):
         self.title = kwargs.get('title')
         self.price = kwargs.get('price')
-        self.points = Membership.price_to_points(self.price)
+        self.points = Member.price_to_points(self.price)
         self.date = kwargs.get('date')
-        self.membership_id = kwargs.get('membership_id')
+        self.member_id = kwargs.get('member_id')
