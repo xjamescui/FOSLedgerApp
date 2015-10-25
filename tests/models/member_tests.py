@@ -7,7 +7,7 @@ class MemberModelTestCase(BaseTestCase):
 
     def _create_user_with_membership(self):
         """
-            Create a user and a member
+        Create a user and a member
         """
         u = User.create(account_id=self.account_id, secret_key=self.secret_key)
         m = Member.create(account_id=u.account_id, email=self.email)
@@ -15,7 +15,7 @@ class MemberModelTestCase(BaseTestCase):
 
     def test_create_user_with_membership(self):
         """
-            Test user and membership relationship
+        Test user and membership relationship
         """
         self.assertEqual(User.query.count(), 0)
         self.assertEqual(Member.query.count(), 0)
@@ -41,8 +41,12 @@ class MemberModelTestCase(BaseTestCase):
         self.assertEqual(m.credits, 10)
 
     def test_points_to_credits(self):
+        """
+        Convert points to credits
+        """
         u, m = self._create_user_with_membership()
         m.add_points(100)
+        self.assertEqual(Member.points_needed_for(10), 100)
         m.convert_points_to_these_credits(10)
         self.assertEqual(m.points, 0)
         self.assertEqual(m.credits, 10)
@@ -70,7 +74,7 @@ class MemberModelTestCase(BaseTestCase):
 
     def test_delete_membership_before_user(self):
         """
-             if user's membership is deleted then user should still exist
+         if user's membership is deleted then user should still exist
         """
         u, m = self._create_user_with_membership()
         self.assertIsNotNone(m)

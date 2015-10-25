@@ -40,7 +40,7 @@ class Member(db.Model, ModelMixins):
     A member is a customer of user
     A member belongs to a customer of LoyaltyPlus
     A member has many purchases
-    A member is deleted along with the customer
+    A member is deleted along with the customer (membership expires along with the program)
     """
     __tablename__ = 'member'
 
@@ -82,7 +82,7 @@ class Member(db.Model, ModelMixins):
         return 0 < c <= self.credits and self.update(credits=self.credits - c)
 
     def convert_points_to_these_credits(self, credits_desired):
-        pts = self.points_needed_for(credits_desired)
+        pts = Member.points_needed_for(credits_desired)
         return self.is_reward_eligible() and self.subtract_points(pts) and self.add_credits(credits_desired)
 
     @classmethod
@@ -95,6 +95,9 @@ class Member(db.Model, ModelMixins):
 
     @classmethod
     def points_needed_for(cls, credits_desired):
+        """
+        logic that decides the points-credits policy
+        """
         return credits_desired * cls._points_per_credit
 
 

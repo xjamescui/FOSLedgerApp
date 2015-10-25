@@ -7,13 +7,13 @@ do ->
   pointsLabel                   = $('#profile-info-container #points-value')
 
   # member enrollment form
-  enrollForm                    = $(document.forms['enroll-form'])
-  enrollFormErrorPrompt         = enrollForm.find('#enroll-form-error')
+  enrollForm                    = document.forms['enroll-form']
+  enrollFormErrorPrompt         = $(enrollForm).find('#enroll-form-error')
   enrollEmailField              = $(enrollForm.email)
   enrollSubmitButton            = $('#enroll-form-container #new-member-add-button')
 
   # credit conversion form
-  convertCreditsForm            = $(document.forms['convert-form'])
+  convertCreditsForm            = document.forms['convert-form']
   convertCreditsEmailField      = $(convertCreditsForm.email)
   convertCreditsValueField      = $(convertCreditsForm.credits)
   convertCreditsPtsEstimate     = $(convertCreditsForm).find('#pts-estimate')
@@ -22,7 +22,7 @@ do ->
   convertCreditsEstimateButton  = $('#convert-form-container #pts-estimate-button')
 
   # Form: Add Purchase
-  newPurchaseForm               = $(document.forms['new-purchase-form'])
+  newPurchaseForm               = document.forms['new-purchase-form']
   newPurchaseEmailField         = $(newPurchaseForm.email)
   priceField                    = $(newPurchaseForm.purchase_price)
   descriptionField              = $(newPurchaseForm.purchase_description)
@@ -63,9 +63,9 @@ do ->
 
   setDefaultPurchaseDate = ->
     now = new Date()
-    dayField.value = now.getDate()
-    monthField.value = now.getMonth() + 1
-    yearField.value = now.getUTCFullYear()
+    dayField.val(now.getDate())
+    monthField.val(now.getMonth() + 1)
+    yearField.val(now.getUTCFullYear())
     return
 
   isValidPurchaseDate = (day, month, year) ->
@@ -77,6 +77,10 @@ do ->
     # date is just wrong in general (e.g. February 30 does not exist)
     return false if !(date.getFullYear() == parseInt(year) and date.getMonth() + 1 == parseInt(month) and date.getDate() == parseInt(day))
     true
+
+  ##################
+  # Utils needed for BONUS questions
+  ##################
 
   # general function to create a sig hash
   createSig = (secretKey, params)->
@@ -108,9 +112,12 @@ do ->
         accountIdLabel.text result['user']['account_id']
         pointsLabel.text result['points']
         creditLabel.text result['credits']
-        initConvertCreditsForm()
         return
     return
+
+  initUserOverview = ->
+    initConvertCreditsForm()
+    refreshUserOverview()
 
   ##################
   # Enrollment
@@ -170,8 +177,8 @@ do ->
   ##################
 
   validateCreditConversionInfo = (ignoreEmail)->
-    email = convertCreditsEmailField.value
-    credits = convertCreditsValueField.value
+    email   = convertCreditsEmailField.val()
+    credits = convertCreditsValueField.val()
 
     if !ignoreEmail and (!email or email == '')
       updateErrorMsg('Please enter an email', convertCreditsFormErrorPrompt)
@@ -193,7 +200,7 @@ do ->
 
   getPointsEstimate = ->
     if validateCreditConversionInfo(true)
-      $.get '/api/credit_conversion', signedParams({credits_quote: convertCreditsValueField.value}), (result)->
+      $.get '/api/credit_conversion', signedParams({credits_quote: convertCreditsValueField.val()}), (result)->
           updatePtsEstimate(result['points'])
           convertCreditsPtsEstimate.show()
           return
@@ -203,15 +210,15 @@ do ->
   createNewCreditConversion = ->
     if validateCreditConversionInfo()
       params =
-        new_credits: convertCreditsValueField.value
-        email: convertCreditsEmailField.value
+        new_credits: convertCreditsValueField.val()
+        email: convertCreditsEmailField.val()
 
       $.ajax(
         url: '/api/credit_conversion'
         type: 'PUT'
         data: signedParams(params)
         success: (result)->
-          if result['backend_err_msg'] and result['backend_err_msg'] != false
+          if result['backend_err_msg'] and result['backend_err_msg'] != ''
             updateErrorMsg(result['backend_err_msg'], convertCreditsFormErrorPrompt)
           else
             refreshUserOverview()
@@ -228,7 +235,7 @@ do ->
     convertCreditsFormErrorPrompt.hide()
     convertCreditsPtsEstimate.hide()
 
-    convertCreditsForm.find('input').click ->
+    $(convertCreditsForm).find('input').click ->
       # toggle error msg when textfield in focus
       updateErrorMsg('', convertCreditsFormErrorPrompt)
       convertCreditsPtsEstimate.hide()
@@ -284,12 +291,12 @@ do ->
   createNewPurchase = ->
     if validateNewPurchaseInfo()
       params =
-        title : descriptionField.value
+        title : descriptionField.val()
         price : priceField.val().toString()
-        day   : dayField.value
-        month : monthField.value
-        year  : yearField.value
-        email : newPurchaseEmailField.value
+        day   : dayField.val()
+        month : monthField.val()
+        year  : yearField.val()
+        email : newPurchaseEmailField.val()
 
       # POST to backend
       $.post '/api/purchase', signedParams(params), (result) ->
@@ -302,9 +309,7 @@ do ->
 
   initNewPurchaseForm = ->
     newPurchaseFormErrorPrompt.hide()
-
-    # setup error msg toggling
-    newPurchaseForm.children('input').click ->
+    $(newPurchaseForm).children('input').click ->
       updateErrorMsg('', newPurchaseFormErrorPrompt)
 
     newPurchaseSubmitButton.bind('click', createNewPurchase)
@@ -318,7 +323,7 @@ do ->
   ##################
 
   main = ->
-    refreshUserOverview()
+    initUserOverview()
     initEnrollmentForm()
     initNewPurchaseForm()
     return

@@ -171,11 +171,14 @@ class CreditConversionResource(BaseResource):
         email, credits_to_add = args.get('email'), args.get('new_credits', 0)
 
         member = Member.query.filter(Member.email == email, Member.account_id == current_user.account_id).first()
+        if not member:
+            return jsonify(success=False, backend_err_msg='Member not found')
 
-        converted = (member.convert_points_to_these_credits(credits_to_add) is not None)
+        converted = member.convert_points_to_these_credits(credits_to_add)
+        if not converted:
+            return jsonify(success=False, backend_err_msg='Conversion failed. Insufficient Points or Ineligible.')
 
-        err = 'Conversion failed. Insufficient Points or Ineligible.' if not converted else False
-        return jsonify(success=converted, backend_err_msg=err)
+        return jsonify(success=True)
 
 
 # Register all created API resources
