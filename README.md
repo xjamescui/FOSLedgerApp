@@ -22,6 +22,7 @@ quick mock up for the Frontier LoyaltyPlus Ledger, BONUS question has been compl
 # Screenshots
 
 ### Login page
-![Portal](https://github.com/xjamescui/FOSLedgerApp/edit/master/portal-screenshot.png)
+
+![Portal](https://github.com/xjamescui/FOSLedgerApp/blob/master/portal-screenshot.png)
 ### Profile page
-![Profile](https://github.com/xjamescui/FOSLedgerApp/edit/master/profile-screenshot.png)
+![Profile](https://github.com/xjamescui/FOSLedgerApp/blob/master/profile-screenshot.png)
