@@ -8,6 +8,7 @@ from flask_login import UserMixin as UserStatusMixin
 class User(db.Model, ModelMixins, UserStatusMixin):
     """
     A user (e.g. Frontier) is a customer of LoyaltyPlus
+    A user is associated with one account (assuming this for now)
     A user has many members
     A user remains even if all of its members are gone
     """
@@ -24,6 +25,14 @@ class User(db.Model, ModelMixins, UserStatusMixin):
     @property
     def points(self):
         return sum([m.points for m in self.members]) if self.members else 0
+
+    @property
+    def credits(self):
+        return sum([m.credits for m in self.members]) if self.members else 0
+
+    @property
+    def purchases(self):
+        return [p for m in self.members for p in m.purchases]
 
 
 class Member(db.Model, ModelMixins):
@@ -57,19 +66,24 @@ class Member(db.Model, ModelMixins):
             return self.credits_attainable_with(self.points)
         return 0
 
-    def points_needed_for(self, credits_desired):
-        return credits_desired * self._points_per_credit
-
     def credits_attainable_with(self, points):
         return points / self._points_per_credit
 
-    def convert_points_for(self, credits_desired):
-        if self.is_reward_eligible():
-            pts = self.points_needed_for(credits_desired)
-            if self.points >= pts:
-                self.update(points=self.points - pts, credits=self.credits + credits_desired)
-                return True
-        return False
+    def add_points(self, pts):
+        return pts > 0 and self.update(points=self.points + pts)
+
+    def subtract_points(self, pts):
+        return 0 < pts <= self.points and self.update(points=self.points - pts)
+
+    def add_credits(self, c):
+        return c > 0 and self.update(credits=self.credits + c)
+
+    def subtract_credits(self, c):
+        return 0 < c <= self.credits and self.update(credits=self.credits - c)
+
+    def convert_points_to_these_credits(self, credits_desired):
+        pts = self.points_needed_for(credits_desired)
+        return self.is_reward_eligible() and self.subtract_points(pts) and self.add_credits(credits_desired)
 
     @classmethod
     def price_to_points(cls, price):
@@ -78,6 +92,10 @@ class Member(db.Model, ModelMixins):
         Current policy: 1$ = 1 pt
         """
         return int(math.floor(price))
+
+    @classmethod
+    def points_needed_for(cls, credits_desired):
+        return credits_desired * cls._points_per_credit
 
 
 class Purchase(db.Model, ModelMixins):

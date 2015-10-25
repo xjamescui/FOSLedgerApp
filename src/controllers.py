@@ -1,8 +1,8 @@
 from flask import render_template, redirect, url_for, request
 from flask_wtf import Form
-from flask_login import LoginManager, login_required, login_user, logout_user, current_user
-from wtforms import StringField
-from wtforms.validators import DataRequired, Email, length
+from flask_login import LoginManager, login_required, login_user, logout_user
+from wtforms import StringField, PasswordField
+from wtforms.validators import DataRequired, length
 from src.models import User
 from src import app
 
@@ -33,20 +33,20 @@ Routes
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/portal', methods=['GET', 'POST'])
 def portal():
-    form = EnrollLoginForm()
+    form = SignUpLoginForm()
     if form.validate_on_submit():
-        email, account_id = request.form.get('email'), request.form.get('account_id')
+        secret_key, account_id = request.form.get('secret_key'), request.form.get('account_id')
 
         # whether enrolling or login in: we need to check if account with current info already exists
-        user = User.query.filter(User.email == email, User.account_id == account_id).first()
+        user = User.query.filter(User.secret_key == secret_key, User.account_id == account_id).first()
 
         if request.form.get('submit') == 'Login':
             if not user:
-                return render_template('portal.html', form=form, errors=["User does not exist. Please enroll first."])
+                return render_template('portal.html', form=form, errors=["User does not exist. Please sign up first."])
         elif request.form.get('submit') == 'Enroll':
             if user:
-                return render_template('portal.html', form=form, errors=["Membership exists, you may just Login"])
-            user = User.create(email=email, account_id=account_id)
+                return render_template('portal.html', form=form, errors=["Account exists, you may just Login"])
+            user = User.create(secret_key=secret_key, account_id=account_id)
 
         # whether login or enroll, login the user eventually
         login_user(user)
@@ -73,13 +73,13 @@ Forms
 '''
 
 
-class EnrollLoginForm(Form):
+class SignUpLoginForm(Form):
     """
     One form that process enrollment and login (since these two forms have the same fields)
     """
-    email = StringField('Email', validators=[DataRequired(), Email()])
     account_id = StringField('Account ID',
                              validators=[DataRequired(), length(min=6, max=6, message='Must be 6 characters long')])
+    secret_key = PasswordField('Secret Key', validators=[DataRequired()])
 
     def get_error_msgs(self):
         return ["%s: %s" % (getattr(self, f).label.text, e[0]) for f, e in self.errors.items()]

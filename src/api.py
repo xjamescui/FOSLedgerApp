@@ -24,6 +24,8 @@ class BaseResource(Resource):
         """
         str_to_hash = secret_key
         for key in sorted(args):
+            if key == 'sig':
+                continue
             str_to_hash = "%s%s%s" % (str_to_hash, key, args[key])
         hash_str = hashlib.md5(str_to_hash).hexdigest()
         return hash_str == sig
@@ -42,17 +44,61 @@ class CurrentUserDetailsResource(BaseResource):
         args = self.parser.parse_args()
         self._abort_if_invalid_sig(args['sig'], current_user.secret_key, args)
 
-        purchases_by_date_most_recent = sorted(current_user.membership.purchases, key=lambda x: x.date)
-
         return jsonify({
             'user': current_user.serialize(),
             'sk': current_user.secret_key,
-            'credits': current_user.membership.credits,
-            'points': current_user.membership.points,
-            'eligible': current_user.membership.is_reward_eligible(),
-            'max_eligible': current_user.membership.max_reward_eligible(),
-            'purchases': [p.serialize() for p in purchases_by_date_most_recent]
+            'credits': current_user.credits,
+            'points': current_user.points
         })
+
+
+class CurrentUserMembersResource(BaseResource):
+    def get(self):
+        """
+        Get all members belonging to current user
+        """
+        args = self.parser.parse_args()
+        self._abort_if_invalid_sig(args['sig'], current_user.secret_key, args)
+
+        members = []
+        for m in current_user.members:
+            tmp = m.serialize()
+            tmp.update({'eligibility': m.is_reward_eligible()})
+            members.append(tmp)
+        return jsonify(members=members)
+
+
+class CurrentUserPurchasesResource(BaseResource):
+    def get(self):
+        """
+        Get all purchase activities associated with current user
+        """
+        args = self.parser.parse_args()
+        self._abort_if_invalid_sig(args['sig'], current_user.secret_key, args)
+
+        purchases = []
+        for p in current_user.purchases:
+            tmp = p.serialize()
+            tmp.update({'email': p.member.email})
+            purchases.append(tmp)
+        return jsonify(purchases=purchases)
+
+
+class MemberResource(BaseResource):
+    def post(self):
+        """
+        Creating a new member
+        """
+        self.parser.add_argument('email', type=str, required=True)
+        args = self.parser.parse_args()
+
+        self._abort_if_invalid_sig(args['sig'], current_user.secret_key, args)
+
+        email, account_id = args.get('email'), args.get('account_id')
+
+        m = Member.create(email=email, account_id=current_user.account_id)
+
+        return jsonify(success=(m is not None))
 
 
 class PurchaseResource(BaseResource):
@@ -65,33 +111,32 @@ class PurchaseResource(BaseResource):
         Creating a new Purchase object for the logged in user
         """
         self.parser.add_argument('title', type=str, required=True)
-        self.parser.add_argument('price', type=float, required=True)
+        self.parser.add_argument('price', type=str, required=True)
         self.parser.add_argument('day', type=int, required=True)
         self.parser.add_argument('month', type=int, required=True)
         self.parser.add_argument('year', type=int, required=True)
+        self.parser.add_argument('email', type=str, required=True)
         args = self.parser.parse_args()
 
         self._abort_if_invalid_sig(args['sig'], current_user.secret_key, args)
 
-        title, price = args.get('title'), args.get('price')
+        title, price = args.get('title'), float(args.get('price'))
         month, day, year = args.get('month'), args.get('day'), args.get('year')
+        email = args.get('email')
 
-        new_purchase = Purchase.create(membership_id=current_user.membership.id,
-                                       title=title,
-                                       price=price,
-                                       date=datetime.datetime(year, month, day))
-        if new_purchase:
-            current_user.membership.update(
-                points=current_user.membership.points + Member.price_to_points(new_purchase.points))
+        member = Member.query.filter(Member.email == email).first()
 
-        return jsonify({
-            'credits': current_user.membership.credits,
-            'points': current_user.membership.points,
-            'eligible': current_user.membership.is_reward_eligible(),
-            'max_eligible': current_user.membership.max_reward_eligible(),
-            'purchases': [p.serialize() for p in current_user.membership.purchases]
-        })
-        pass
+        if not member:
+            abort(400, message='invalid member')
+
+        p = Purchase.create(member_id=member.id,
+                            title=title,
+                            price=price,
+                            date=datetime.datetime(year, month, day))
+        if p:
+            member.add_points(Member.price_to_points(p.price))
+
+        return jsonify(success=(p is not None))
 
 
 class CreditConversionResource(BaseResource):
@@ -110,35 +155,33 @@ class CreditConversionResource(BaseResource):
 
         credits = args.get('credits_quote')
         return jsonify({
-            'points': current_user.membership.points_needed_for(credits)
+            'points': Member.points_needed_for(credits)
         })
 
     def put(self):
         """
         Update membership by converting points into credits, if appropriate
         """
+        self.parser.add_argument('email', type=str, required=True)
         self.parser.add_argument('new_credits', type=int, required=True)
         args = self.parser.parse_args()
 
         self._abort_if_invalid_sig(args['sig'], current_user.secret_key, args)
 
-        credits_to_add = args.get('new_credits', 0)
-        converted = current_user.membership.convert_points_for(credits_to_add)
+        email, credits_to_add = args.get('email'), args.get('new_credits', 0)
 
-        results = {
-            'credits': current_user.membership.credits,
-            'points': current_user.membership.points,
-            'eligible': current_user.membership.is_reward_eligible(),
-            'max_eligible': current_user.membership.max_reward_eligible()
-        }
+        member = Member.query.filter(Member.email == email, Member.account_id == current_user.account_id).first()
 
-        if not converted:
-            results['backend_err_msg'] = 'Conversion failed. Insufficient Points or Ineligible.'
+        converted = (member.convert_points_to_these_credits(credits_to_add) is not None)
 
-        return jsonify(results)
+        err = 'Conversion failed. Insufficient Points or Ineligible.' if not converted else False
+        return jsonify(success=converted, backend_err_msg=err)
 
 
 # Register all created API resources
+api.add_resource(MemberResource, '/api/member')
 api.add_resource(PurchaseResource, '/api/purchase')
 api.add_resource(CurrentUserDetailsResource, '/api/current_user_details')
+api.add_resource(CurrentUserMembersResource, '/api/current_user_details/members')
+api.add_resource(CurrentUserPurchasesResource, '/api/current_user_details/purchases')
 api.add_resource(CreditConversionResource, '/api/credit_conversion')

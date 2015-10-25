@@ -1,7 +1,6 @@
 from . import db
 from collections import OrderedDict
 
-
 """
 Serializer that serializes model data into JSON
 """

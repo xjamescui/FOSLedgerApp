@@ -41,16 +41,20 @@ class MemberModelTestCase(BaseTestCase):
         self.assertEqual(m.credits, 10)
 
     def test_points_to_credits(self):
-        u,m = self._create_user_with_membership()
-        m.update(points=100)
-        m.convert_points_for(10)
+        u, m = self._create_user_with_membership()
+        m.add_points(100)
+        m.convert_points_to_these_credits(10)
         self.assertEqual(m.points, 0)
         self.assertEqual(m.credits, 10)
+        self.assertEqual(Member.get_by_id(m.id).points, 0)
+        self.assertEqual(Member.get_by_id(m.id).credits, 10)
 
-        m.update(points=100)
-        m.convert_points_for(9999)  # should not be allowed
+        m.add_points(100)
+        m.convert_points_to_these_credits(9999)  # should not be allowed
         self.assertEqual(m.points, 100)
         self.assertEqual(m.credits, 10)
+        self.assertEqual(Member.get_by_id(m.id).points, 100)
+        self.assertEqual(Member.get_by_id(m.id).credits, 10)
 
     def test_delete_user_before_membership(self):
         """

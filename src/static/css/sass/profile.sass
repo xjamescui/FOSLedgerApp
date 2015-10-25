@@ -1,5 +1,13 @@
 @import 'mixins'
 
+ul
+  padding: 0
+li
+  color: $secondary-text-color
+  list-style: none
+  text-align: left
+  border-top: 1px solid $divider-color
+
 #top-nav-bar
   text-align: right
   background-color: $primary-color
@@ -39,24 +47,24 @@
     color: $complementary-color
   #credits-value
     color: $dark-primary-color
+#convert-form-container
   #convert-form
     margin-top: 20px
     text-align: center
     border-top: 1px dashed $primary-color
     padding-top: 20px
-    #convert-form-title
+    .convert-form-title
       font-size: 16px
       color: $dark-primary-color
     #convert-form-error
       margin-top: 10px
-    #conversion-input
-      color: $complementary-color
+    .conversion-input
       margin: 10px auto
-      #points-to-convert
+      label
+        display: inline-block
+        width: 80px
+      input
         @include style_textfield($primary-color)
-        text-align: center
-        color: $dark-primary-color
-        font-size: 20px
         width: 100px
         display: inline-block
         margin-right: 10px
@@ -64,53 +72,65 @@
         margin-right: 10px
       #pts-estimate
         width: 200px
-    #pts-estimate-button
-      @include style_button($complementary-color, $dark-complementary-color, white)
-    #convert-submit-button
-      @include style_button($primary-color, $dark-primary-color, white)
+  #pts-estimate-button
+    @include style_button($complementary-color, $dark-complementary-color, white)
+  #convert-submit-button
+    @include style_button($primary-color, $dark-primary-color, white)
 
-#profile-ledgers-container
-  margin: 20px 0
-  padding: 10px
-  #new-purchase-form
-    @include style_form_frame(lightgray)
-    text-align: center
-    padding-left: 50px
-    padding-right: 50px
+.item-list
+  .item-description, .item-label1, .item-label2
+    text-align: left
+    display: inline-block
+    padding: 10px
+  .item-description
+    width: 500px
+    .item-title, .item-subtitle
+      display: block
+    .email
+      color: $dark-complementary-color
+    .item-title
+      color: $primary-text-color
+      font-size: 20px
+  .item-label1, .item-label2
+    font-size: 30px
+    vertical-align: top
+    width: 150px
+  .item-label2
+    color: $complementary-color
+
+#profile-members-container
+  @include style_form_frame(lightgray)
+  text-align: center
+  margin-top: 50px
+  form#enroll-form
     label
       padding: 5px
       width: 50px
-    #new-purchase-month, #new-purchase-day, #new-purchase-year
-      text-align: center
-    #new-purchase-month, #new-purchase-day
-      width: 30px
-    #new-purchase-year
-      width: 60px
-    #new-purchase-add-button
-      margin-left: 10px
-      @include style_button($green-color, $dark-green-color, white)
-  #purchases-list
-    color: $secondary-text-color
-    padding: 0
+  #new-member-add-button
+    @include style_button($complementary-color, $dark-complementary-color, white)
+    margin-left: 10px
+  #members-list
     li
-      list-style: none
-      text-align: left
-      border-top: 1px solid $divider-color
-    .item-description, .item-price, .item-points
-      text-align: left
-      display: inline-block
-      padding: 10px
-    .item-description
-      width: 600px
-      .item-title, .item-date
-        display: block
-      .item-title
-        color: $primary-text-color
-        font-size: 20px
-    .item-price, .item-points
-      font-size: 30px
-      vertical-align: top
-      width: 150px
-    .item-points
-      color: $complementary-color
+      .item-label1
+        color: $primary-color
+
+#profile-ledgers-container
+  @include style_form_frame(lightgray)
+  text-align: center
+  margin: 50px 0
+  form#new-purchase-form
+    label
+      padding: 5px
+      width: 50px
+    .day, .month
+      width: 40px
+    .year
+      width: 70px
+  #new-purchase-add-button
+    display: block
+    margin: 20px auto 0 auto
+    @include style_button($green-color, $dark-green-color, white)
+
+
+
 

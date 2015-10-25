@@ -25,9 +25,10 @@ bundles = {
     ),
 
     'profile_js': Bundle(
-        'js/coffee/profile.coffee',
+        'lib/md5.js',
+        Bundle('js/coffee/profile.coffee', filters='coffeescript'),
         output='js/profile.js',
-        filters='coffeescript'
+        filters='jsmin'
     ),
 
     'profile_css': Bundle(

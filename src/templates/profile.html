@@ -1,7 +1,7 @@
 {% extends 'layout.html' %}
 
 {% block title %}
-    FOS LoyaltyProgram
+    LoyaltyPlus
 {% endblock %}
 
 {% block css_includes %}
@@ -13,8 +13,7 @@
 
 {% block body %}
     <div id="top-nav-bar">
-        <h1>FOS LoyaltyPlus</h1>
-        <span class="info-label">Welcome, </span><span id="email-label"></span>
+        <h1>LoyaltyPlus</h1>
         <a class='logout-button' href="{{ url_for('logout') }}">Logout</a>
     </div>
     <div class="container">
@@ -22,33 +21,62 @@
 
         <div id="profile-info-container">
             <div class="info-field lead-field"><label>Account ID: </label><span id='account-value'></span></div>
-            <div class="info-field"><label>Reward status:</label><span id="eligibility-value"></span></div>
             <div class="info-field"><label>Points: </label><span id='points-value'></span></div>
             <div class="info-field"><label>Credits($): </label><span id="credits-value"></span></div>
-            <div id="convert-form">
-                <div id="convert-form-title">Add Credits(10pts/$1)</div>
-                <div id="convert-form-error" class="error-prompt"></div>
-                <div id="conversion-input">
-                    <input id='points-to-convert' type="number" maxLength="4"/><span id="pts-estimate"></span>
-                </div>
+        </div>
+        <div id="profile-members-container">
+            <h3>Members</h3>
+
+            {# Enroll form #}
+            <div id="enroll-form-container">
+                <form name="enroll-form" id="enroll-form">
+                    <div id="enroll-form-error" class="error-prompt"></div>
+                    <label>Email</label>
+                    <input name='email' class="textfield" type="text"/>
+                </form>
+                <button id='new-member-add-button' type="button">Enroll</button>
+            </div>
+            {# Convert Credits Form #}
+            <div id="convert-form-container">
+                <form name="convert-form" id="convert-form">
+                    <div class="convert-form-title">Add Credits to Member(10pts/$1)</div>
+                    <div id="convert-form-error" class="error-prompt"></div>
+                    <div class="conversion-input">
+                        <label>Email</label>
+                        <input type="text" name="email"/>
+                    </div>
+                    <div class="conversion-input">
+                        <label>Credits</label>
+                        <input type="number" name="credits" maxLength="4"/><span id="pts-estimate"></span>
+                    </div>
+                </form>
                 <button id="pts-estimate-button" type="button">Estimate</button>
                 <button id="convert-submit-button" type="button">Convert</button>
             </div>
+
+            <ul id="members-list" class="item-list">
+                <li><h3>No members</h3></li>
+            </ul>
         </div>
         <div id="profile-ledgers-container">
             <h3>Purchases</h3>
-
-            <div id="new-purchase-form">
+            {# Add new purchase form #}
+            <form id="new-purchase-form" name="new-purchase-form">
                 <div id="new-purchase-form-error" class="error-prompt"></div>
-                <label>Description</label><input id='new-purchase-title' class="textfield" type="text"/>
-                <label>Price ($)</label><input id='new-purchase-price' class="textfield" type="number"/>
+                <label>Email</label>
+                <input name="email" class="textfield" type="text"/>
+                <label>Description</label>
+                <input name='purchase_description' class="textfield" type="text"/>
+                <label>Price ($)</label>
+                <input name='purchase_price' class="textfield" type="number"/>
                 <label>Purchase date</label>
-                <input id="new-purchase-month" class="textfield" type="text" placeholder="mm" maxlength="2"/>
-                <input id="new-purchase-day" class="textfield" type="text" placeholder="dd" maxlength="2"/>
-                <input id="new-purchase-year" class="textfield" type="text" placeholder="yyyy" maxlength="4"/>
-                <button id='new-purchase-add-button' type="button">Add</button>
-            </div>
-            <ul id="purchases-list">
+                <input name="purchase_month" class="textfield month" type="text" placeholder="mm" maxlength="2"/>
+                <input name="purchase_day" class="textfield day" type="text" placeholder="dd" maxlength="2"/>
+                <input name="purchase_year" class="textfield year" type="text" placeholder="yyyy" maxlength="4"/>
+            </form>
+            <button id='new-purchase-add-button' type="button">Add</button>
+            <ul id="purchases-list" class="item-list">
+                <li><h3>No activities</h3></li>
             </ul>
         </div>
     </div>
