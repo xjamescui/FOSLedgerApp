@@ -43,7 +43,7 @@ def portal():
         if request.form.get('submit') == 'Login':
             if not user:
                 return render_template('portal.html', form=form, errors=["User does not exist. Please sign up first."])
-        elif request.form.get('submit') == 'Enroll':
+        elif request.form.get('submit') == 'Sign Up':
             if user:
                 return render_template('portal.html', form=form, errors=["Account exists, you may just Login"])
             user = User.create(secret_key=secret_key, account_id=account_id)
