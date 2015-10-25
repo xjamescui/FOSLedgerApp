@@ -1,6 +1,6 @@
 .idea/
 venv/
 instance/
-*.pyc
+*/*.pyc
 *.db
 node_modules/
