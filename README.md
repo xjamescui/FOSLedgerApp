@@ -1,6 +1,10 @@
 # FOSLedgerApp
 
-Run instructions (in top folder, execute the following commands):
+## Intro
+quick mock up for the Frontier LoyaltyPlus Ledger, BONUS question has been completed as well.
+
+
+## Run instructions (in top folder, execute the following commands):
 
 1. start virtual environment for this project
 > source ./venv/bin/activate
@@ -13,3 +17,11 @@ Run instructions (in top folder, execute the following commands):
 
 4. Run!
 > python manage.py runserver
+
+
+# Screenshots
+
+### Login page
+![Portal](https://github.com/xjamescui/FOSLedgerApp/edit/master/portal-screenshot.png)
+### Profile page
+![Profile](https://github.com/xjamescui/FOSLedgerApp/edit/master/profile-screenshot.png)
