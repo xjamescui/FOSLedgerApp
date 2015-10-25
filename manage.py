@@ -1,7 +1,7 @@
 import os
 from src import app
-from src.models import db
-from flask_script import Manager, prompt_bool
+from src.models import db, User
+from flask_script import Manager
 
 '''
 database operations:
@@ -17,6 +17,10 @@ db_manager = Manager(usage="Perform database operations")
 def create():
     print "Creating tables..."
     db.create_all()
+
+    print "Fixture: Creating Frontier's system account"
+    if User.create(account_id='aabacd', secret_key='123', email='frontier@test.com'):
+        print "Fixture: Create Success!"
 
 
 @db_manager.command
