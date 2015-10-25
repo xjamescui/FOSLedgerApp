@@ -127,7 +127,7 @@ class PurchaseResource(BaseResource):
         member = Member.query.filter(Member.email == email).first()
 
         if not member:
-            abort(400, message='invalid member')
+            abort(400, message='Member not found')
 
         p = Purchase.create(member_id=member.id,
                             title=title,
@@ -172,11 +172,11 @@ class CreditConversionResource(BaseResource):
 
         member = Member.query.filter(Member.email == email, Member.account_id == current_user.account_id).first()
         if not member:
-            return jsonify(success=False, backend_err_msg='Member not found')
+            abort(400, message='Member not found')
 
         converted = member.convert_points_to_these_credits(credits_to_add)
         if not converted:
-            return jsonify(success=False, backend_err_msg='Conversion failed. Insufficient Points or Ineligible.')
+            abort(400, message='Conversion failed. Insufficient Points or Ineligible.')
 
         return jsonify(success=True)
 

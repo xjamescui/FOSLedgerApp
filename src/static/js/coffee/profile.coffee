@@ -218,14 +218,11 @@ do ->
         type: 'PUT'
         data: signedParams(params)
         success: (result)->
-          if result['backend_err_msg'] and result['backend_err_msg'] != ''
-            updateErrorMsg(result['backend_err_msg'], convertCreditsFormErrorPrompt)
-          else
-            refreshUserOverview()
-            refreshMembersList()
+          refreshUserOverview()
+          refreshMembersList()
           return
         error: (err)->
-          updateErrorMsg(err.responseText, convertCreditsFormErrorPrompt)
+          updateErrorMsg(JSON.parse(err.responseText).message, convertCreditsFormErrorPrompt)
           return
       )
     return
@@ -299,11 +296,19 @@ do ->
         email : newPurchaseEmailField.val()
 
       # POST to backend
-      $.post '/api/purchase', signedParams(params), (result) ->
-        refreshPurchasesList()
-        refreshMembersList()
-        refreshUserOverview()
-        return
+      $.ajax(
+        url:'/api/purchase'
+        type: 'POST'
+        data: signedParams(params)
+        success: (result) ->
+          refreshPurchasesList()
+          refreshMembersList()
+          refreshUserOverview()
+          return
+        error: (err) ->
+          updateErrorMsg(JSON.parse(err.responseText).message, newPurchaseFormErrorPrompt)
+          return
+      )
     return
 
 
